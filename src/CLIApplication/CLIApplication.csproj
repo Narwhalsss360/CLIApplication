@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <BaseOutputPath>..\..\bin\$(MSBuildProjectName)</BaseOutputPath>
+    <PackageOutputPath>$(OutputPath)\package</PackageOutputPath>
+    <Title>CLIApplication</Title>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageReadmeFile></PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Narwhalsss360/CLIApplication</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <NeutralLanguage>en</NeutralLanguage>
+    <AnalysisLevel>6.0-recommended</AnalysisLevel>
+  </PropertyGroup>
+
+</Project>
