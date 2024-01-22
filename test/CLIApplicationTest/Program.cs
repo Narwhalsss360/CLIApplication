@@ -56,7 +56,4 @@ void Quit(string[]? flags = null, CLIInterpreter? sender = null)
     quit = true;
 }
 
-void q(string[]? flags = null, CLIInterpreter? sender = null)
-{
-    Quit();
-}
+void q(string[]? flags = null, CLIInterpreter? sender = null) => Quit();

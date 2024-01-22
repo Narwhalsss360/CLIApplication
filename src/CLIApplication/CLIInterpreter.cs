@@ -194,7 +194,8 @@ namespace CLIApplication
             InvokingCommand?.Invoke(this, cmd);
             try
             {
-                cmd.Invoke(entries.ToArray(), flags.ToArray(), this);
+                if (cmd.Invoke(entries.ToArray(), flags.ToArray(), this) is object obj)
+                    Error.WriteLine($"On execution of {cmd}: {obj}");
             }
             catch (ArgumentException)
             {
