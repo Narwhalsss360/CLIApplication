@@ -18,15 +18,12 @@ namespace CLIApplication
                 typeof(decimal),
             };
 
-
             public Delegate Delegate { get; init; }
 
             public MethodInfo Info { get; init; }
 
             public Command(Delegate @delegate, MethodInfo info)
             {
-                //Validate, check if name of parameters is null.
-
                 bool hasFlags = false;
                 bool hasCaller = false;
                 foreach (var parameter in info.GetParameters())
@@ -135,6 +132,8 @@ namespace CLIApplication
 
         public string InterfaceName { get; set; } = "CLIApp";
 
+        public string EntryMarker { get; set; } = ">";
+
         public string FlagMarker { get; set; } = "--";
 
         public TextWriter Out { get; set; } = Console.Out;
@@ -150,6 +149,14 @@ namespace CLIApplication
         public event EventHandler<Command>? InvokingCommand;
 
         public event EventHandler<Command>? CommandInvoked;
+
+        private Command? _executing;
+
+        public Command? Executing { get => _executing; }
+
+        private bool _stopExecution = false;
+
+        public bool StopRunExecution { get => _stopExecution; set => _stopExecution = value; }
 
         public CLIInterpreter(params Delegate[] delegates)
         {
@@ -191,6 +198,7 @@ namespace CLIApplication
             if (entries.Count < required)
                 throw new InvalidOperationException($"Not enough positional arguments, required {required}, given {entries.Count}.");
 
+            _executing = cmd;
             InvokingCommand?.Invoke(this, cmd);
             try
             {
@@ -201,7 +209,40 @@ namespace CLIApplication
             {
                 throw;
             }
+            finally
+            {
+                _executing = null;
+            }
             CommandInvoked?.Invoke(this, cmd);
+        }
+
+        public void Run(CancellationToken? token = null)
+        {
+            while (!StopRunExecution)
+            {
+                if (token.HasValue)
+                    if (token.Value.IsCancellationRequested)
+                        break;
+
+                Out.Write($"{InterfaceName}{EntryMarker}");
+                try
+                {
+                    Execute(Console.ReadLine());
+                }
+                catch (InvalidOperationException e)
+                {
+                    if (!e.WasThrownBy(Execute))
+                        throw;
+                    Error.WriteLine(e.Message);
+                }
+                catch (ArgumentException e)
+                {
+                    if (!e.WasThrownBy(Execute))
+                        throw;
+                    Error.WriteLine(e.Message);
+                }
+            }
+            StopRunExecution = false;
         }
     }
 }
