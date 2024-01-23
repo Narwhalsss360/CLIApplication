@@ -10,6 +10,9 @@ namespace CLIApplication
         public static string GetDeclaredName(this MethodInfo methodInfo)
         {
             string name = methodInfo.Name;
+            if (!name.Contains("__"))
+                return name;
+            //Top-level declaration
             int start = name.LastIndexOf("__", StringComparison.InvariantCulture) + 2;
             int count = name.LastIndexOf("|", StringComparison.InvariantCulture) - start;
             return name.Substring(start, count);
