@@ -103,14 +103,14 @@ namespace CLIApplication
                     {
                         arguments[parameter.Position] = evaluating;
                     }
-                    else if (parameter.ParameterType == typeof(bool))
+                    else if (parameter.ParameterType.GetTypeIfNullable() == typeof(bool))
                     {
                         if (bool.TryParse(evaluating, out bool boolArgument))
                             arguments[parameter.Position] = boolArgument;
                         else
                             throw new ArgumentException($"Could not parse {evaluating} as {parameter.ParameterType}");
                     }
-                    else if (parameter.ParameterType == typeof(decimal))
+                    else if (parameter.ParameterType.GetTypeIfNullable() == typeof(decimal))
                     {
                         if (decimal.TryParse(evaluating, out decimal decimalArgument))
                             arguments[parameter.Position] = decimalArgument;
@@ -162,7 +162,7 @@ namespace CLIApplication
         {
             _commands = new Command[delegates.Length];
             for (int i = 0; i < delegates.Length; i++)
-                _commands[i] = new Command { Delegate = delegates[i], Info = delegates[i].GetMethodInfo() };
+                _commands[i] = new Command(delegates[i], delegates[i].GetMethodInfo());
         }
 
         public void Execute(string? lineInput)
