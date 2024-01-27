@@ -1,9 +1,5 @@
-﻿using Microsoft.VisualBasic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Net.Http.Headers;
+﻿using System.Globalization;
 using System.Reflection;
-using System.Security.Cryptography;
 
 namespace CLIApplication
 {
@@ -11,13 +7,6 @@ namespace CLIApplication
     {
         public readonly struct Command : IFormattable
         {
-            public static readonly Type[] SupportedTypes =
-            {
-                typeof(string),
-                typeof(bool),
-                typeof(decimal),
-            };
-
             public Delegate Delegate { get; init; }
 
             public MethodInfo Info { get; init; }
@@ -28,11 +17,7 @@ namespace CLIApplication
                 bool hasCaller = false;
                 foreach (var parameter in info.GetParameters())
                 {
-                    if (parameter.Name is null)
-                        throw new InvalidProgramException($"Parameter name must not be null. {info}");
-                    if (SupportedTypes.Contains(parameter.ParameterType))
-                        continue;
-                    if (parameter.ParameterType.IsEnum)
+                    if (ParameterInfoExtensions.IsSupported(parameter.ParameterType))
                         continue;
 
                     if (parameter.ParameterType == typeof(string[]))
@@ -60,71 +45,23 @@ namespace CLIApplication
                 Info = info;
             }
 
+            public Command(Delegate @delegate)
+                : this(@delegate, @delegate.GetMethodInfo())
+            {
+            }
+
             public readonly object? Invoke(string[] entries, string[] flags, CLIInterpreter? caller = null)
             {
                 ParameterInfo[] parameters = Info.GetParameters();
-                object?[] arguments = new object?[parameters.Length];
-                foreach (ParameterInfo parameter in parameters)
+                Dictionary<int, object?> flagsAndArguments = new();
+                foreach (var parameter in parameters)
                 {
                     if (parameter.ParameterType == typeof(string[]))
-                    {
-                        arguments[parameter.Position] = flags;
-                        continue;
-                    }
+                        flagsAndArguments.Add(parameter.Position, flags);
                     else if (parameter.ParameterType == typeof(CLIInterpreter))
-                    {
-                        arguments[parameter.Position] = caller;
-                        continue;
-                    }
-
-                    string evaluating;
-
-                    if (parameter.HasDefaultValue)
-                    {
-                        // Specify StringComparison for correctness. parameter.Name is checked non-null in constructor.
-                        // Dereference of a possibly null reference. parameter.Name is checked non-null in constructor.
-#pragma warning disable CA1310
-                        if (Array.Find(entries, entry => entry.StartsWith($"{parameter.Name}=")) is string namedEntry)
-#pragma warning restore CA1310
-#pragma warning disable CS8602
-                            evaluating = namedEntry[(parameter.Name.Length + 1)..];
-#pragma warning restore CS8602 
-                        else if (parameter.Position < entries.Length)
-                            evaluating = entries[parameter.Position];
-                        else
-                            continue;
-                    }
-                    else
-                    {
-                        evaluating = entries[parameter.Position];
-                    }
-
-                    if (parameter.ParameterType == typeof(string))
-                    {
-                        arguments[parameter.Position] = evaluating;
-                    }
-                    else if (parameter.ParameterType.GetTypeIfNullable() == typeof(bool))
-                    {
-                        if (bool.TryParse(evaluating, out bool boolArgument))
-                            arguments[parameter.Position] = boolArgument;
-                        else
-                            throw new ArgumentException($"Could not parse {evaluating} as {parameter.ParameterType}");
-                    }
-                    else if (parameter.ParameterType.GetTypeIfNullable() == typeof(decimal))
-                    {
-                        if (decimal.TryParse(evaluating, out decimal decimalArgument))
-                            arguments[parameter.Position] = decimalArgument;
-                        else
-                            throw new ArgumentException($"Could not parse {evaluating} as {parameter.ParameterType}");
-                    }
-                    else
-                    {
-                        if (!Enum.TryParse(parameter.ParameterType, evaluating, out arguments[parameter.Position]))
-                            throw new ArgumentException($"Could not parse {evaluating} as {parameter.ParameterType}");
-                    }
+                        flagsAndArguments.Add(parameter.Position, caller);
                 }
-
-                return Delegate.DynamicInvoke(arguments);
+                return Delegate.DynamicInvoke(parameters.ParseArguments(entries, flagsAndArguments));
             }
 
             public string ToString(string? format = null, IFormatProvider? formatProvider = null) => this.GetCommandName();
@@ -162,7 +99,7 @@ namespace CLIApplication
         {
             _commands = new Command[delegates.Length];
             for (int i = 0; i < delegates.Length; i++)
-                _commands[i] = new Command(delegates[i], delegates[i].GetMethodInfo());
+                _commands[i] = new Command(delegates[i]);
         }
 
         public void Execute(string? lineInput)
@@ -244,5 +181,7 @@ namespace CLIApplication
             }
             StopRunExecution = false;
         }
+
+        public void Stop() => StopRunExecution = false;
     }
 }

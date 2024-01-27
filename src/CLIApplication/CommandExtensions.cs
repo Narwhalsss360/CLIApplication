@@ -25,13 +25,6 @@ namespace CLIApplication
             return command.Info.GetDeclaredName();
         }
 
-        public static Type GetTypeIfNullable(this Type type)
-        {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-                return type.GetGenericArguments()[0];
-            return type;
-        }
-
         public static string GetCommandDescription(this Command command)
         {
             if (command.Info.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute attribute)
@@ -40,7 +33,7 @@ namespace CLIApplication
             ParameterInfo[] parameters = command.Info.GetParameters();
             foreach (var item in parameters)
             {
-                description += $"{item.Name} ({item.ParameterType.GetTypeIfNullable().Name}{(item.HasDefaultValue ? "?" : "")})";
+                description += $"{item.Name} ({item.ParameterType.NullableValueType().Name}{(item.HasDefaultValue ? "?" : "")})";
                 if (item.Position != parameters.Length - 1)
                     description += ", ";
             }
@@ -67,15 +60,11 @@ namespace CLIApplication
             foreach (var command in commands)
             {
                 if (ignoreCase)
-                {
                     if (command.GetCommandName().ToLower(CultureInfo.InvariantCulture) == commandName.ToLower(CultureInfo.InvariantCulture))
                         return command;
-                }
                 else
-                {
                     if (command.GetCommandName() == commandName)
                         return command;
-                }
             }
             return null;
         }

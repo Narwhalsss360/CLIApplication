@@ -1,16 +1,12 @@
 ﻿using CLIApplication;
 using System.ComponentModel;
 
+
 Dictionary<string, string> userSavedItems = new();
 
-CLIInterpreter interpreter = new(SaveItem, DeleteItem, ShowItem, Quit, q);
+CLIInterpreter interpreter = new(SaveItem, DeleteItem, ShowItem, Quit, q) { EntryMarker = "→", FlagMarker = "~~", InterfaceName = "CLI App Test" };
 
-bool quit = false;
-
-while (!quit)
-{
-    interpreter.Execute(Console.ReadLine());
-}
+Type t = typeof(MyEnum);
 
 [DisplayName("save-item")]
 void SaveItem(string key, string? value = null)
@@ -53,7 +49,13 @@ void ShowItem(string? key = null)
 
 void Quit(string[]? flags = null, CLIInterpreter? sender = null)
 {
-    quit = true;
+    if (sender is null)
+    {
+        Environment.Exit(-30);
+        return;
+    }
+
+    sender.StopRunExecution = true;
 }
 
 void q(string[]? flags = null, CLIInterpreter? sender = null) => Quit();
