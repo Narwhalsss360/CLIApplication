@@ -41,6 +41,18 @@ namespace CLIApplication
             return description;
         }
 
+        public static int RequiredArguments(this MethodInfo methodInfo)
+        {
+            int count = 0;
+            foreach (ParameterInfo parameter in methodInfo.GetParameters())
+            {
+                if (parameter.HasDefaultValue)
+                    continue;
+                count++;
+            }
+            return count;
+        }
+
         public static int RequiredCommandArguments(this Command command)
         {
             int count = 0;
