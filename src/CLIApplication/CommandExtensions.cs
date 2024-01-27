@@ -82,11 +82,15 @@ namespace CLIApplication
             foreach (var command in commands)
             {
                 if (ignoreCase)
+                {
                     if (command.GetCommandName().ToLower(CultureInfo.InvariantCulture) == commandName.ToLower(CultureInfo.InvariantCulture))
                         return command;
+                }
                 else
+                {
                     if (command.GetCommandName() == commandName)
                         return command;
+                }
             }
             return null;
         }
