@@ -41,10 +41,10 @@ namespace CLIApplication
             return description;
         }
 
-        public static int RequiredArguments(this MethodInfo methodInfo)
+        public static int RequiredArguments(this ParameterInfo[] parameters)
         {
             int count = 0;
-            foreach (ParameterInfo parameter in methodInfo.GetParameters())
+            foreach (ParameterInfo parameter in parameters)
             {
                 if (parameter.HasDefaultValue)
                     continue;
