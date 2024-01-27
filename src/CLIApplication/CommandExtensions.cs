@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using ParameterInfoExtensions;d
 using static CLIApplication.CLIInterpreter;
 
 namespace CLIApplication
@@ -18,25 +19,33 @@ namespace CLIApplication
             return name.Substring(start, count);
         }
 
-        public static string GetCommandName(this Command command)
+        public static string GetCommandName(this MethodInfo methodInfo)
         {
-            if (command.Info.GetCustomAttribute<DisplayNameAttribute>() is DisplayNameAttribute displayName)
+            if (methodInfo.GetCustomAttribute<DisplayNameAttribute>() is DisplayNameAttribute displayName)
                 return displayName.DisplayName;
-            return command.Info.GetDeclaredName();
+            return methodInfo.GetDeclaredName();
         }
 
-        public static string GetCommandDescription(this Command command)
+        public static string GetCommandName(this Command command) => command.Info.GetCommandName();
+
+        public static string GetParametersDescription(this ParameterInfo[] parameters)
         {
-            if (command.Info.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute attribute)
-                return attribute.Description;
-            string description = $"{command.GetCommandName()}(";
-            ParameterInfo[] parameters = command.Info.GetParameters();
-            foreach (var item in parameters)
+            string description = "";
+            foreach (var parameter in parameters)
             {
-                description += $"{item.Name} ({item.ParameterType.NullableValueType().Name}{(item.HasDefaultValue ? "?" : "")})";
-                if (item.Position != parameters.Length - 1)
+                description += $"{parameter.ParameterType.NullableValueType().Name} {parameter.Name}";
+                if (parameter.Position != parameters.Length - 1)
                     description += ", ";
             }
+            return description;
+        }
+
+        public static string GetCommandDescription(this MethodInfo methodInfo)
+        {
+            if (methodInfo.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute attribute)
+                return attribute.Description;
+            string description = $"{methodInfo.GetCommandName()}(";
+            description += methodInfo.GetParameters().GetParametersDescription();
             description += ")";
             return description;
         }
