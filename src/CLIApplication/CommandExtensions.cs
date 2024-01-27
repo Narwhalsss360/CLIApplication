@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
-using ParameterInfoExtensions;d
 using static CLIApplication.CLIInterpreter;
 
 namespace CLIApplication
@@ -19,14 +18,14 @@ namespace CLIApplication
             return name.Substring(start, count);
         }
 
-        public static string GetCommandName(this MethodInfo methodInfo)
+        public static string GetDisplayName(this MethodInfo methodInfo)
         {
             if (methodInfo.GetCustomAttribute<DisplayNameAttribute>() is DisplayNameAttribute displayName)
                 return displayName.DisplayName;
             return methodInfo.GetDeclaredName();
         }
 
-        public static string GetCommandName(this Command command) => command.Info.GetCommandName();
+        public static string GetCommandName(this Command command) => command.Info.GetDisplayName();
 
         public static string GetParametersDescription(this ParameterInfo[] parameters)
         {
@@ -40,15 +39,17 @@ namespace CLIApplication
             return description;
         }
 
-        public static string GetCommandDescription(this MethodInfo methodInfo)
+        public static string GetDescription(this MethodInfo methodInfo)
         {
             if (methodInfo.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute attribute)
                 return attribute.Description;
-            string description = $"{methodInfo.GetCommandName()}(";
+            string description = $"{methodInfo.GetDisplayName()}(";
             description += methodInfo.GetParameters().GetParametersDescription();
             description += ")";
             return description;
         }
+
+        public static string GetCommandDescription(this Command command) => command.Info.GetDescription();
 
         public static int RequiredArguments(this ParameterInfo[] parameters)
         {
