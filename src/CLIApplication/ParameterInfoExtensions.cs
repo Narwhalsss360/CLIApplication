@@ -8,6 +8,7 @@ namespace CLIApplication
         {
             typeof(string),
             typeof(byte),
+            typeof(bool),
             typeof(short),
             typeof(ushort),
             typeof(int),
@@ -55,13 +56,19 @@ namespace CLIApplication
             {
                 if (byte.TryParse(entry, out byte value))
                     return value;
-                return null;;
+                return null;
+            }
+            else if (type == typeof(bool))
+            {
+                if (bool.TryParse(entry, out bool value))
+                    return value;
+                return null;
             }
             else if (type == typeof(short))
             {
                 if (short.TryParse(entry, out short value))
                     return value;
-                return null;;
+                return null;
             }
             else if (type == typeof(ushort))
             {
