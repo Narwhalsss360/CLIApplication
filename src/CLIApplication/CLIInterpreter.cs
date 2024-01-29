@@ -81,7 +81,9 @@ namespace CLIApplication
 
         public bool IgnoreCase { get; set; }
 
+#pragma warning disable CA1051 // Do not declare visible instance fields
         public List<Command> Commands = new();
+#pragma warning restore CA1051 // Do not declare visible instance fields
 
         public event EventHandler<Command>? InvokingCommand;
 
@@ -91,7 +93,7 @@ namespace CLIApplication
 
         public Command? Executing { get => _executing; }
 
-        private bool _stopExecution = false;
+        private bool _stopExecution;
 
         public bool StopRunExecution { get => _stopExecution; set => _stopExecution = value; }
 
