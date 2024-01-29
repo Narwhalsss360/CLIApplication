@@ -77,7 +77,7 @@ namespace CLIApplication
             return count;
         }
 
-        public static Command? FindCommand(this Command[] commands, string commandName, bool ignoreCase = false)
+        public static Command? FindCommand(this IEnumerable<Command> commands, string commandName, bool ignoreCase = false)
         {
             foreach (var command in commands)
             {

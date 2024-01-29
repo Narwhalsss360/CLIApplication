@@ -81,7 +81,7 @@ namespace CLIApplication
 
         public bool IgnoreCase { get; set; }
 
-        private readonly Command[] _commands;
+        public List<Command> Commands = new();
 
         public event EventHandler<Command>? InvokingCommand;
 
@@ -97,9 +97,8 @@ namespace CLIApplication
 
         public CLIInterpreter(params Delegate[] delegates)
         {
-            _commands = new Command[delegates.Length];
-            for (int i = 0; i < delegates.Length; i++)
-                _commands[i] = new Command(delegates[i]);
+            foreach (Delegate @delegate in delegates)
+                Commands.Add(new(@delegate));
         }
 
         public void Execute(string? lineInput)
@@ -109,10 +108,10 @@ namespace CLIApplication
 
             List<string> entries = lineInput.DeliminateOutside();
 
-            if (_commands.FindCommand(entries[0], IgnoreCase) is not Command cmd)
+            if (Commands.FindCommand(entries[0], IgnoreCase) is not Command cmd)
             {
                 if (entries[0].ToLower(CultureInfo.InvariantCulture) == "help")
-                    foreach (var command in _commands)
+                    foreach (var command in Commands)
                         Console.WriteLine(command.GetCommandDescription());
                 else
                     throw new InvalidOperationException($"Command not found: {entries[0]}");
