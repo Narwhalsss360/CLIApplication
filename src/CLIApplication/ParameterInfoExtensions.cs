@@ -122,6 +122,41 @@ namespace CLIApplication
             return null;
         }
 
+        public static object?[] ParseArguments(this Type[] types, string[] entries, Dictionary<int, object?>? defaultValues = null)
+        {
+            object?[] arguments = new object?[types.Length];
+
+            for (int pos = 0; pos < types.Length; pos++)
+            {
+                string evaluating;
+                Type type = types[pos];
+                if (defaultValues is not null)
+                {
+                    if (defaultValues.ContainsKey(pos))
+                    {
+                        arguments[pos] = defaultValues[pos];
+                        continue;
+                    }
+
+                    if (Array.Find(entries, entry => entry.StartsWith($"{type.Name}=", StringComparison.InvariantCulture)) is string namedEntry)
+                    {
+                        if (type.Name is null)
+                            continue;
+                        evaluating = namedEntry[(type.Name.Length + 1)..];
+                    }
+                    else if (pos < entries.Length)
+                        evaluating = entries[pos];
+                    else
+                        continue;
+                }
+                else
+                    evaluating = entries[pos];
+
+                arguments[pos] = evaluating.ParseAs(type);
+            }
+            return arguments;
+        }
+
         public static object?[] ParseArguments(this ParameterInfo[] parameters, string[] entries, Dictionary<int, object?>? preset = null)
         {
             object?[] arguments = new object?[parameters.Length];
@@ -148,9 +183,14 @@ namespace CLIApplication
                         evaluating = namedEntry[(parameter.Name.Length + 1)..];
                     }
                     else if (parameter.Position < entries.Length)
+                    {
                         evaluating = entries[parameter.Position];
+                    }
                     else
+                    {
+                        arguments[parameter.Position] = parameter.DefaultValue;
                         continue;
+                    }
                 }
                 else
                     evaluating = entries[parameter.Position];

@@ -142,10 +142,6 @@ namespace CLIApplication
                 if (cmd.Invoke(entries.ToArray(), flags.ToArray(), this) is object obj)
                     Error.WriteLine($"On execution of {cmd}: {obj}");
             }
-            catch (ArgumentException)
-            {
-                throw;
-            }
             finally
             {
                 _executing = null;
@@ -155,16 +151,28 @@ namespace CLIApplication
 
         public void Run(CancellationToken? token = null)
         {
+            if (token.HasValue)
+                token.Value.ThrowIfCancellationRequested();
+
             while (!StopRunExecution)
             {
-                if (token.HasValue)
-                    if (token.Value.IsCancellationRequested)
-                        break;
-
                 Out.Write($"{InterfaceName}{EntryMarker}");
+
+                Task<string?> task = In.ForceReadLineAsync(token ?? default);
+                while (!task.IsCompleted)
+                {
+                    if (task.IsCanceled ||
+                        task.IsFaulted ||
+                        StopRunExecution)
+                        goto cancelled;
+                }
+
                 try
                 {
-                    Execute(Console.ReadLine());
+                    Execute(task.Result);
+                    if (token.HasValue)
+                        if (token.Value.IsCancellationRequested)
+                            goto cancelled;
                 }
                 catch (InvalidOperationException e)
                 {
@@ -178,6 +186,10 @@ namespace CLIApplication
                         throw;
                     Error.WriteLine(e.Message);
                 }
+
+                continue;
+            cancelled:
+                break;
             }
             StopRunExecution = false;
         }
