@@ -132,11 +132,6 @@ namespace CLIApplication
                 Type type = types[pos];
                 if (defaultValues is not null)
                 {
-                    if (defaultValues.ContainsKey(pos))
-                    {
-                        arguments[pos] = defaultValues[pos];
-                        continue;
-                    }
 
                     if (Array.Find(entries, entry => entry.StartsWith($"{type.Name}=", StringComparison.InvariantCulture)) is string namedEntry)
                     {
@@ -146,6 +141,11 @@ namespace CLIApplication
                     }
                     else if (pos < entries.Length)
                         evaluating = entries[pos];
+                    else if (defaultValues.ContainsKey(pos))
+                    {
+                        arguments[pos] = defaultValues[pos];
+                        continue;
+                    }
                     else
                         continue;
                 }
