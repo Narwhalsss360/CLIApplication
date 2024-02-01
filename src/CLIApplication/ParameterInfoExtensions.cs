@@ -192,8 +192,10 @@ namespace CLIApplication
                         continue;
                     }
                 }
-                else
+                else if (parameter.Position < entries.Length)
                     evaluating = entries[parameter.Position];
+                else
+                    throw new ArgumentException($"Not enough arguments, missing at position {parameter.Position}");
 
                 arguments[parameter.Position] = evaluating.ParseAs(parameter.ParameterType);
             }
