@@ -41,11 +41,11 @@ namespace CLIApplication
 
         public static string GetDescription(this MethodInfo methodInfo)
         {
-            if (methodInfo.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute attribute)
-                return attribute.Description;
             string description = $"{methodInfo.GetDisplayName()}(";
             description += methodInfo.GetParameters().GetParametersDescription();
             description += ")";
+            if (methodInfo.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute attribute)
+                description += $":{attribute.Description}";
             return description;
         }
 
@@ -56,11 +56,24 @@ namespace CLIApplication
             string fullDescription = command.GetCommandDescription();
             foreach (ParameterInfo parameterInfo in command.Info.GetParameters())
             {
-                if (!parameterInfo.ParameterType.IsEnum)
-                    continue;
-                fullDescription += $"\n\t{parameterInfo.Name}:";
-                foreach (string name in Enum.GetNames(parameterInfo.ParameterType))
-                    fullDescription += $"\n\t\t{name}";
+                if (parameterInfo.ParameterType.IsEnum)
+                {
+                    fullDescription += $"\n\t{parameterInfo.Name}:";
+                    if (parameterInfo.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute descriptionAttribute)
+                        fullDescription += $"{descriptionAttribute.Description}";
+                    foreach (FieldInfo field in parameterInfo.ParameterType.GetFields())
+                    {
+                        if (field.FieldType != parameterInfo.ParameterType)
+                            continue;
+                        fullDescription += $"\n\t\t{field.Name}";
+                        if (field.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute valueDescriptionAttribute)
+                            fullDescription += $":{valueDescriptionAttribute.Description}";
+                    }    
+                }
+                else if (parameterInfo.GetCustomAttribute<DescriptionAttribute>() is DescriptionAttribute descriptionAttribute)
+                {
+                    fullDescription += $"\n\t{parameterInfo.Name}:{descriptionAttribute.Description}";
+                }
             }
             return fullDescription;
         }
