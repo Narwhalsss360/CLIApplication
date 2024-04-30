@@ -50,6 +50,11 @@ namespace CLIApplication
             {
             }
 
+            public Command(MethodInfo methodInfo)
+                : this(methodInfo.CreateDelegate(), methodInfo)
+            {
+            }
+
             public readonly object? Invoke(string[] entries, string[] flags, CLIInterpreter? caller = null)
             {
                 ParameterInfo[] parameters = Info.GetParameters();
