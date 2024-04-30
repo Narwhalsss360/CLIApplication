@@ -118,8 +118,7 @@ namespace CLIApplication
             if (Commands.FindCommand(entries[0], IgnoreCase) is not Command cmd)
             {
                 if (entries[0].ToLower(CultureInfo.InvariantCulture) == "help")
-                    foreach (var command in Commands)
-                        Console.WriteLine(command.GetCommandDescription());
+                    ShowHelp(entries.Count > 1 ? entries[1] : null);
                 else
                     throw new InvalidOperationException($"Command not found: {entries[0]}");
                 return;
@@ -198,6 +197,25 @@ namespace CLIApplication
                 break;
             }
             StopRunExecution = false;
+        }
+
+        public void ShowHelp(string? commandName = null)
+        {
+            if (commandName is null)
+            {
+                foreach (var command in Commands)
+                    Out.WriteLine(command.GetCommandDescription());
+                return;
+            }
+
+            if (Commands.FindCommand(commandName, IgnoreCase) is not Command cmd)
+            {
+                Error.WriteLine($"Command {commandName} not found! Showing help.");
+                ShowHelp();
+                return;
+            }
+
+            Out.WriteLine(cmd.GetFullDescription());
         }
 
         public void Stop() => StopRunExecution = false;

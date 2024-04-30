@@ -51,6 +51,20 @@ namespace CLIApplication
 
         public static string GetCommandDescription(this Command command) => command.Info.GetDescription();
 
+        public static string GetFullDescription(this Command command)
+        {
+            string fullDescription = command.GetCommandDescription();
+            foreach (ParameterInfo parameterInfo in command.Info.GetParameters())
+            {
+                if (!parameterInfo.ParameterType.IsEnum)
+                    continue;
+                fullDescription += $"\n\t{parameterInfo.Name}:";
+                foreach (string name in Enum.GetNames(parameterInfo.ParameterType))
+                    fullDescription += $"\n\t\t{name}";
+            }
+            return fullDescription;
+        }
+
         public static int RequiredArguments(this ParameterInfo[] parameters)
         {
             int count = 0;
