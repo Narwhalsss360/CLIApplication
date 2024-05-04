@@ -18,6 +18,7 @@ namespace CLIApplication
             typeof(float),
             typeof(double),
             typeof(decimal),
+            typeof(object),
             typeof(Enum)
         };
 
@@ -34,6 +35,29 @@ namespace CLIApplication
             if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
                 return type.GetGenericArguments()[0];
             return type;
+        }
+
+        public static object ParseAny(this string entry)
+        {
+            if (bool.TryParse(entry, out bool boolValue))
+                return boolValue;
+
+            if (uint.TryParse(entry, out uint uintValue))
+                return uintValue;
+
+            if (int.TryParse(entry, out int intValue))
+                return intValue;
+
+            if (ulong.TryParse(entry, out ulong ulongValue))
+                return ulongValue;
+
+            if (long.TryParse(entry, out long longValue))
+                return longValue;
+
+            if (decimal.TryParse(entry, out decimal decimalValue))
+                return decimalValue;
+
+            return entry;
         }
 
         public static object? ParseAs(this string entry, Type type)
@@ -130,7 +154,10 @@ namespace CLIApplication
                 return null;
             }
 
-            return null;
+            if (type == typeof(object))
+                return entry.ParseAny();
+
+            throw new InvalidProgramException($"Type {type} listed as supported but no parse if-branch was written.");
         }
 
         public static object?[] ParseArguments(this Type[] types, string[] entries, Dictionary<int, object?>? defaultValues = null)
