@@ -32,9 +32,21 @@ namespace CLIApplication
             string description = "";
             foreach (var parameter in parameters)
             {
-                description += $"{parameter.ParameterType.NullableValueType().Name} {parameter.Name}";
-                if (parameter.Position != parameters.Length - 1)
+                if (parameter.ParameterType == typeof(string[]))
+                    continue;
+
+                if (parameter.Position != 0)
                     description += ", ";
+
+                if (parameter.ParameterType == typeof(object[]))
+                {
+                    description += $"object[Variable] {parameter.Name}";
+                    continue;
+                }
+                else
+                {
+                    description += $"{parameter.ParameterType.NullableValueType().Name} {parameter.Name}";
+                }
             }
             return description;
         }
