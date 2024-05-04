@@ -133,6 +133,7 @@ namespace CLIApplication
                 {
                     flags.Add(entries[i]);
                     entries.RemoveAt(i);
+                    i--;
                 }
             }
 
