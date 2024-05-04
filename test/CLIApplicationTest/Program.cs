@@ -1,12 +1,11 @@
 ﻿using CLIApplication;
 using System.ComponentModel;
 
-
 Dictionary<string, string> userSavedItems = new();
 
-CLIInterpreter interpreter = new(SaveItem, DeleteItem, ShowItem, Quit, q) { EntryMarker = "→", FlagMarker = "~~", InterfaceName = "CLI App Test" };
+CLIInterpreter interpreter = new(SaveItem, DeleteItem, ShowItem, Quit, q, ArgsPrinter) { EntryMarker = "->", FlagMarker = "~~", InterfaceName = "CLI App Test" };
 
-Type t = typeof(MyEnum);
+interpreter.Run();
 
 [DisplayName("save-item")]
 void SaveItem(string key, string? value = null)
@@ -45,6 +44,18 @@ void ShowItem(string? key = null)
     }
 
     Console.WriteLine($"{key}: {userSavedItems[key]}");
+}
+
+void ArgsPrinter(bool showType, CLIInterpreter? caller = null, string[]? flags = null, params object[] optional)
+{
+    flags ??= new string[0];
+    Console.WriteLine("Arguments:");
+    foreach (object arg in optional)
+        Console.WriteLine($"    {(showType ? $"{arg.GetType().Name} " : "")}{arg}");
+
+    Console.WriteLine("Flags:");
+    foreach (string flag in flags)
+        Console.WriteLine($"    {flag}");
 }
 
 void Quit(string[]? flags = null, CLIInterpreter? sender = null)

@@ -97,7 +97,8 @@ namespace CLIApplication
             {
                 if (parameter.HasDefaultValue ||
                     parameter.ParameterType == typeof(string[]) ||
-                    parameter.ParameterType == typeof(CLIInterpreter)) //what about `CLIInterpreter?`?
+                    parameter.ParameterType == typeof(CLIInterpreter) ||
+                    parameter.ParameterType == typeof(object[]))
                     continue;
                 count++;
             }

@@ -212,6 +212,22 @@ namespace CLIApplication
 
                 string evaluating;
 
+                if (parameter.ParameterType == typeof(object[]))
+                {
+                    int start = parameter.Position;
+                    if (parameters.Any(parameter => parameter.ParameterType == typeof(object[])))
+                        start -= 1;
+
+                    if (parameters.Any(parameter => parameter.ParameterType == typeof(CLIInterpreter)))
+                        start -= 1;
+
+                    List<object> paramsArgs = new();
+                    for (int i = start; i < entries.Length; i++)
+                        paramsArgs.Add(entries[i].ParseAny());
+                    arguments[parameter.Position] = paramsArgs.ToArray();
+                    break;
+                }
+
                 if (parameter.HasDefaultValue)
                 {
                     if (Array.Find(entries, entry => entry.StartsWith($"{parameter.Name}=", StringComparison.InvariantCulture)) is string namedEntry)

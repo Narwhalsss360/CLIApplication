@@ -15,11 +15,9 @@ namespace CLIApplication
             {
                 bool hasFlags = false;
                 bool hasCaller = false;
+                bool hasParamsModifier = false;
                 foreach (var parameter in info.GetParameters())
                 {
-                    if (ParameterInfoExtensions.IsSupported(parameter.ParameterType))
-                        continue;
-
                     if (parameter.ParameterType == typeof(string[]))
                     {
                         if (hasFlags)
@@ -39,6 +37,17 @@ namespace CLIApplication
                         hasCaller = true;
                         continue;
                     }
+
+                    if (parameter.ParameterType == typeof(object[]))
+                    {
+                        if (hasParamsModifier)
+                            throw new InvalidProgramException($"Cannoy have multiple params (params object[]) in paramter. {info}");
+                        hasParamsModifier = true;
+                        continue;
+                    }
+
+                    if (ParameterInfoExtensions.IsSupported(parameter.ParameterType))
+                        continue;
                 }
 
                 Delegate = @delegate;
