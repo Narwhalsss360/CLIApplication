@@ -52,67 +52,78 @@ namespace CLIApplication
 
             if (type == typeof(string))
                 return entry;
+
             if (type == typeof(byte))
             {
                 if (byte.TryParse(entry, out byte value))
                     return value;
                 return null;
             }
-            else if (type == typeof(bool))
+
+            if (type == typeof(bool))
             {
                 if (bool.TryParse(entry, out bool value))
                     return value;
                 return null;
             }
-            else if (type == typeof(short))
+
+            if (type == typeof(short))
             {
                 if (short.TryParse(entry, out short value))
                     return value;
                 return null;
             }
-            else if (type == typeof(ushort))
+
+            if (type == typeof(ushort))
             {
                 if (ushort.TryParse(entry, out ushort value))
                     return value;
                 return null;
             }
-            else if (type == typeof(int))
+
+            if (type == typeof(int))
             {
                 if (int.TryParse(entry, out int value))
                     return value;
                 return null;
             }
-            else if (type == typeof(uint))
+
+            if (type == typeof(uint))
             {
                 if (uint.TryParse(entry, out uint value))
                     return value;
                 return null;
             }
-            else if (type == typeof(long))
+
+            if (type == typeof(long))
             {
                 if (long.TryParse(entry, out long value))
                     return value;
                 return null;
             }
-            else if (type == typeof(ulong))
+
+            if (type == typeof(ulong))
             {
                 if (ulong.TryParse(entry, out ulong value))
                     return value;
                 return null;
             }
-            else if (type == typeof(float))
+
+            if (type == typeof(float))
             {
                 if (float.TryParse(entry, out float value))
                     return value;
                 return null;
             }
-            else if (type == typeof(double))
+
+            if (type == typeof(double))
             {
                 if (double.TryParse(entry, out double value))
                     return value;
                 return null;
             }
-            else if (type == typeof(decimal))
+
+            if (type == typeof(decimal))
             {
                 if (decimal.TryParse(entry, out decimal value))
                     return value;
