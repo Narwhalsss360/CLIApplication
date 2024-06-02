@@ -5,7 +5,7 @@ namespace CLIApplication
 {
     public class CLIInterpreter
     {
-        public readonly struct Command : IFormattable
+        public class Command : IFormattable
         {
             public Delegate Delegate { get; init; }
 
@@ -64,7 +64,7 @@ namespace CLIApplication
             {
             }
 
-            public readonly object? Invoke(string[] entries, string[] flags, CLIInterpreter? caller = null)
+            public object? Invoke(string[] entries, string[] flags, CLIInterpreter? caller = null)
             {
                 ParameterInfo[] parameters = Info.GetParameters();
                 Dictionary<int, object?> flagsAndArguments = new();
