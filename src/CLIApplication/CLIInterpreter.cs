@@ -228,6 +228,6 @@ namespace CLIApplication
             Out.WriteLine(cmd.GetFullDescription());
         }
 
-        public void Stop() => StopRunExecution = false;
+        public void Stop() => StopRunExecution = true;
     }
 }
