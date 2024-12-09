@@ -7,9 +7,9 @@ namespace CLIApplication
     {
         public static Delegate CreateDelegate(this MethodInfo methodInfo, object? target = null)
         {
-            var parmTypes = methodInfo.GetParameters().Select(parm => parm.ParameterType);
-            var parmAndReturnTypes = parmTypes.Append(methodInfo.ReturnType).ToArray();
-            var delegateType = Expression.GetDelegateType(parmAndReturnTypes);
+            var paramTypes = methodInfo.GetParameters().Select(parm => parm.ParameterType);
+            var paramTypesAndReturnType = paramTypes.Append(methodInfo.ReturnType).ToArray();
+            var delegateType = Expression.GetDelegateType(paramTypesAndReturnType);
 
             if (methodInfo.IsStatic)
                 return methodInfo.CreateDelegate(delegateType);
